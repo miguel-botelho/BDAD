@@ -42,103 +42,117 @@ CREATE TABLE EXTRAS (
 );
 
 CREATE TABLE TIPO_VEICULO (
-	Designacao_veiculo TEXT NOT NULL PRIMARY KEY,
-	UNIQUE (Designacao_veiculo)
+	id_tipoVeiculo INTEGER NOT NULL PRIMARY KEY,
+	Designacao_veiculo TEXT NOT NULL UNIQUE,
+	UNIQUE (id_tipoVeiculo)
 );
 
 CREATE TABLE MODELO_VEICULO (
+	idModeloVeiculo INTEGER NOT NULL PRIMARY KEY,
 	Ano_producao INTEGER NOT NULL
 		CHECK (Ano_producao > 1876),
-	Nome_modelo TEXT NOT NULL PRIMARY KEY,
-	Nome_marca TEXT NOT NULL REFERENCES MARCA_VEICULO(Nome_marca)
+	Nome_modelo TEXT NOT NULL,
+	id_Marca INTEGER NOT NULL REFERENCES MARCA_VEICULO(id_Marca)
 );
 
 CREATE TABLE MARCA_VEICULO(
-	Nome_marca TEXT NOT NULL PRIMARY KEY,
-	UNIQUE (Nome_marca)
+	id_Marca INTEGER NOT NULL PRIMARY KEY,
+	Nome_marca TEXT NOT NULL UNIQUE,
+	UNIQUE (id_Marca)
 );
 
 CREATE TABLE ESTADO_ATUAL(
-	Nome_estado TEXT NOT NULL PRIMARY KEY,
-	UNIQUE (Nome_estado)
+	id_estadoAtual INTEGER NOT NULL PRIMARY KEY,
+	Nome_estado TEXT NOT NULL UNIQUE,
+	UNIQUE (id_estadoAtual)
 );
 
 CREATE TABLE TIPO_COMBUSTIVEL(
-	Nome_combustivel TEXT NOT NULL PRIMARY KEY,
-	UNIQUE (Nome_combustivel)
+	id_tipoCombustivel INTEGER NOT NULL PRIMARY KEY,
+	Nome_combustivel TEXT NOT NULL UNIQUE,
+	UNIQUE (id_tipoCombustivel)
 );
 
 CREATE TABLE VEICULO(
-	Matricula TEXT NOT NULL PRIMARY KEY,
+	id_veiculo INTEGER NOT NULL PRIMARY KEY,
+	Matricula TEXT NOT NULL,
 	Consumo REAL NOT NULL
 		CHECK(Consumo > 0),
 	Preco_aluguer INTEGER
 		CHECK(Preco_aluguer > 0),
-	Nome_modelo TEXT REFERENCES MODELO_VEICULO(Nome_modelo),
-	Nome_estado TEXT REFERENCES ESTADO_ATUAL(Nome_estado),
-	Designacao_veiculo TEXT REFERENCES TIPO_VEICULO(Designacao_veiculo),
-	Nome_combustivel TEXT REFERENCES TIPO_COMBUSTIVEL(Nome_combustivel),
-	id_extras INTEGER REFERENCES EXTRAS(id_extras)
+	idModeloVeiculo INTEGER REFERENCES MODELO_VEICULO(idModeloVeiculo),
+	id_estadoAtual INTEGER REFERENCES ESTADO_ATUAL(id_estadoAtual),
+	id_tipoVeiculo INTEGER REFERENCES TIPO_VEICULO(id_tipoVeiculo),
+	id_tipoCombustivel INTEGER REFERENCES TIPO_COMBUSTIVEL(id_tipoCombustivel),
+	id_extras INTEGER REFERENCES EXTRAS(id_extras),
+	UNIQUE (id_veiculo)
 );
 
 CREATE TABLE TIPO_CONTRATO(
-	Designacao_contrato TEXT NOT NULL PRIMARY KEY,
-		UNIQUE (Designacao_contrato)
+	id_tipoContrato INTEGER NOT NULL PRIMARY KEY,
+	Designacao_contrato TEXT NOT NULL UNIQUE,
+		UNIQUE (id_tipoContrato)
 );
 
 CREATE TABLE CATEGORIA_SALARIAL(
 	id_Categoria_Salarial INTEGER PRIMARY KEY,
 	Montante INTEGER NOT NULL
 		CHECK (Montante > 0),
-		UNIQUE (id_Categoria_Salarial)
-	
+	UNIQUE (id_Categoria_Salarial)
 );
 
 CREATE TABLE ESPECIALIZACAO(
-	Nome_especializacao TEXT NOT NULL PRIMARY KEY,
-		UNIQUE(Nome_especializacao)
+	id_especializacao INTEGER NOT NULL PRIMARY KEY,
+	Nome_especializacao TEXT NOT NULL UNIQUE,
+		UNIQUE(id_especializacao)
 );
 
 CREATE TABLE POSICAO_EMPRESA(
-	Nome_posicao TEXT NOT NULL PRIMARY KEY,
-		UNIQUE(Nome_posicao)
+	id_posicaoEmpresa INTEGER NOT NULL PRIMARY KEY,
+	Nome_posicao TEXT NOT NULL UNIQUE,
+		UNIQUE(id_posicaoEmpresa)
 );
 
 CREATE TABLE CODIGO_POSTAL(
-	Nome_postal TEXT NOT NULL PRIMARY KEY,
-		UNIQUE(Nome_postal)
+	id_codigoPostal INTEGER NOT NULL PRIMARY KEY,
+	Nome_postal TEXT UNIQUE,
+		UNIQUE(id_codigoPostal)
 );
 
 CREATE TABLE LOCALIDADE(
-	Nome_localidade TEXT NOT NULL PRIMARY KEY,
-		UNIQUE(Nome_localidade)
+	id_localidade INTEGER NOT NULL PRIMARY KEY,
+	Nome_localidade TEXT NOT NULL UNIQUE,
+		UNIQUE(id_localidade)
 );
 
 CREATE TABLE PESSOA(
-	Telefone Integer NOT NULL PRIMARY KEY,
+	id_pessoa INTEGER NOT NULL PRIMARY KEY,
+	Telefone Integer NOT NULL UNIQUE,
 	Morada TEXT NOT NULL,
 	Nome_pessoa TEXT NOT NULL,
-	Nome_localidade REFERENCES LOCALIDADE(Nome_localidade),
-	Nome_postal REFERENCES CODIGO_POSTAL(Nome_postal),
-		UNIQUE(Telefone)
+	id_localidade REFERENCES LOCALIDADE(id_localidade),
+	id_codigoPostal REFERENCES CODIGO_POSTAL(id_codigoPostal),
+		UNIQUE(id_pessoa)
 );
 
 CREATE TABLE CLIENTE(
-	NIF INTEGER NOT NULL PRIMARY KEY,
-	Telefone INTEGER NOT NULL,
+	id_cliente INTEGER NOT NULL PRIMARY KEY,
+	NIF INTEGER NOT NULL UNIQUE,
+	id_pessoa INTEGER NOT NULL,
 	E_mail TEXT NOT NULL,
-	FOREIGN KEY(Telefone) REFERENCES PESSOA(Telefone)
+	FOREIGN KEY(id_pessoa) REFERENCES PESSOA(id_pessoa)
 );
 
 CREATE TABLE FUNCIONARIO(
-	NIB TEXT NOT NULL PRIMARY KEY,
-	Telefone INTEGER NOT NULL,
-	Designacao_contrato TEXT REFERENCES TIPO_CONTRATO(Designacao_contrato),
+	id_funcionario INTEGER NOT NULL PRIMARY KEY,
+	NIB TEXT NOT NULL UNIQUE,
+	id_pessoa INTEGER NOT NULL,
+	id_tipoContrato INTEGER REFERENCES TIPO_CONTRATO(id_tipoContrato),
 	id_Categoria_Salarial INTEGER REFERENCES CATEGORIA_SALARIAL(id_Categoria_Salarial),
-	Nome_posicao TEXT REFERENCES POSICAO_EMPRESA(Nome_posicao),
-	Nome_especializacao TEXT REFERENCES ESPECIALIZACAO(Nome_especializacao),
-	FOREIGN KEY(Telefone) REFERENCES PESSOA(Telefone),
-		UNIQUE(NIB)
+	id_posicaoEmpresa INTEGER REFERENCES POSICAO_EMPRESA(id_posicaoEmpresa),
+	id_especializacao TEXT REFERENCES ESPECIALIZACAO(id_especializacao),
+	FOREIGN KEY(id_pessoa) REFERENCES PESSOA(id_pessoa),
+		UNIQUE(id_funcionario)
 );
 
 
@@ -148,31 +162,30 @@ CREATE TABLE ALUGUER(
 		CHECK (Custo_total > 0),
 	Data_de_fim DATE NOT NULL,
 	Data_de_inicio DATE NOT NULL CHECK (Data_de_inicio <= Data_de_fim),
-	Veiculo INTEGER NOT NULL,
-	NIB TEXT NOT NULL REFERENCES FUNCIONARIO(NIB),
-	NIF INTEGER NOT NULL REFERENCES CLIENTE(NIF),
-	FOREIGN KEY(Veiculo) REFERENCES VEICULO(Matricula),
+	id_funcionario INTEGER NOT NULL REFERENCES FUNCIONARIO(id_funcionario),
+	id_cliente INTEGER NOT NULL REFERENCES CLIENTE(id_cliente),
 		UNIQUE(id_aluguer)
 );
 
 
 CREATE TABLE TAXA_RISCO(
+	id_taxaRisco INTEGER NOT NULL UNIQUE,
 	Valor_risco INTEGER NOT NULL
 		CHECK(Valor_risco > 0),
-	NIF INTEGER NOT NULL,
-	id_aluguer INTEGER,
-	FOREIGN KEY(NIF) REFERENCES CLIENTE(NIF),
+	id_cliente INTEGER NOT NULL,
+	id_aluguer INTEGER NOT NULL,
+	FOREIGN KEY(id_cliente) REFERENCES CLIENTE(id_cliente),
 	FOREIGN KEY(id_aluguer) REFERENCES ALUGUER(id_aluguer),
-	PRIMARY KEY (NIF, id_aluguer)
+	PRIMARY KEY (id_taxaRisco, id_aluguer)
 );
 
 
 CREATE TABLE FRANQUIA(
 	Valor_franquia INTEGER NOT NULL
 		CHECK(Valor_franquia > 0),
-	Matricula TEXT NOT NULL,
-	id_aluguer INTEGER,
-	FOREIGN KEY(Matricula) REFERENCES VEICULO(Matricula),
+	id_veiculo INTEGER NOT NULL,
+	id_aluguer INTEGER NOT NULL,
+	FOREIGN KEY(id_veiculo) REFERENCES VEICULO(id_veiculo),
 	FOREIGN KEY(id_aluguer) REFERENCES ALUGUER(id_aluguer),
-	PRIMARY KEY (Matricula, id_aluguer)
+	PRIMARY KEY (id_veiculo, id_aluguer)
 );
